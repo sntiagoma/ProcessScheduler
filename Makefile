@@ -1,0 +1,24 @@
+all: bin/planificador bin/pcp bin/plp
+
+# Binarios
+bin/planificador: src/planificador.o
+	$(CXX) -o $@ $^
+
+bin/pcp: src/pcp.o
+	$(CXX) -o $@ $^
+
+bin/plp: src/plp.o
+	$(CXX) -o $@ $^
+
+# Objetos
+src/planificador.o: src/planificador.cpp src/planificador.h bin
+src/pcp.o: src/pcp.cpp src/pcp.h
+src/plp.o: src/plp.cpp src/plp.h	
+
+# Utilidades
+bin:
+	mkdir bin
+
+clean:
+	rm -f src/*.o bin/* src/*.*~ src/*~
+	rmdir bin
