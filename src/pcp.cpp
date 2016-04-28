@@ -1,11 +1,20 @@
 #include "pcp.h"
 #include <iostream>
 #include <string>
-using namespace std;
+using    namespace std;
 
 int main(int argc, char** argv, char** envp){
   if(argc==3 or argc==5){
     //Work Work Work Work
+    if(string(argv[1]).compare("-i")!=0){
+      printUsage();
+      return 1;
+    }
+    if(argc==5 and string(argv[3]).compare("-t")!=0){
+      printUsage();
+      return 1;
+    }
+
   }else{
     printUsage();
     return 1;

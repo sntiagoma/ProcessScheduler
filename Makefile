@@ -12,8 +12,8 @@ bin/plp: src/plp.o
 
 # Objetos
 src/planificador.o: src/planificador.cpp src/planificador.h bin
-src/pcp.o: src/pcp.cpp src/pcp.h
-src/plp.o: src/plp.cpp src/plp.h	
+src/pcp.o: src/pcp.cpp src/pcp.h bin
+src/plp.o: src/plp.cpp src/plp.h	bin
 
 # Utilidades
 bin:
