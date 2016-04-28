@@ -1,3 +1,4 @@
+CXXFLAGS=-std=c++11
 all: bin/planificador bin/pcp bin/plp
 
 # Binarios
@@ -22,3 +23,6 @@ bin:
 clean:
 	rm -f src/*.o bin/* src/*.*~ src/*~
 	rmdir bin
+
+debug: CXXFLAGS += -DDEBUG -g
+debug: all

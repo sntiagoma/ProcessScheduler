@@ -1,7 +1,7 @@
 #include "pcp.h"
 #include <iostream>
 #include <string>
-using    namespace std;
+using namespace std;
 
 int main(int argc, char** argv, char** envp){
   if(argc==3 or argc==5){
