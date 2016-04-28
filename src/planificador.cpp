@@ -9,7 +9,7 @@ int main(int argc, char** argv, char** envp){
   extern int optind, opterr, optopt;
   int option;
   string plpname = string(""); //Nombre del PLP
-  int n = 3;
+  int n = 3; //Numero de procesos
   map<int,int> mapHilos; //Mapa con proceso y cuantos hilos tiene
   while ((option = getopt(argc, argv, "l:n:t:")) != -1) {
     switch (option) {
@@ -45,6 +45,13 @@ int main(int argc, char** argv, char** envp){
           #endif
       break;
     }
+  }
+  int* hilos = new int[n];
+  for(int i=0; i<n; i++){ //Inicialice en 3
+    hilos[i] = 3;
+  }
+  for(auto i:mapHilos){ // Cambie los que estan
+    hilos[i.first] = i.second;
   }
   return 0;
 }

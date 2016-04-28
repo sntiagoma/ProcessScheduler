@@ -8,6 +8,6 @@ int main(int argc, char** argv, char** envp){
 }
 
 int generateRand(int init, int final){
-  srand(time(NULL));
+  srand(time(NULL)); //Actualizar el Reloj
   return (rand()%(final-init))+init;
 }
