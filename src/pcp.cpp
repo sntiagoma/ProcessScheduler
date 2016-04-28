@@ -5,7 +5,6 @@ using    namespace std;
 
 int main(int argc, char** argv, char** envp){
   if(argc==3 or argc==5){
-    //Work Work Work Work
     if(string(argv[1]).compare("-i")!=0){
       printUsage();
       return 1;
@@ -19,7 +18,7 @@ int main(int argc, char** argv, char** envp){
     printUsage();
     return 1;
   }
-
+  //Work Work Work Work
   return 0;
 }
 void printUsage(){

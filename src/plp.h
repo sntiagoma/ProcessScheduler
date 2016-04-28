@@ -1,0 +1,1 @@
+int generateRand(int, int);
