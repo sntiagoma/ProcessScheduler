@@ -2,6 +2,8 @@
 #include <iostream>
 #include <map>
 #include <unistd.h>
+#include <sys/wait.h>
+
 using namespace std;
 int main(int argc, char** argv, char** envp){
   int tempn, tempp, temph;
@@ -31,7 +33,7 @@ int main(int argc, char** argv, char** envp){
           return 3;
         }
       break;
-      
+
       case 't':
         tempp = stoi(string(optarg));
         if(tempp>=n){
@@ -55,3 +57,28 @@ int main(int argc, char** argv, char** envp){
   }
   return 0;
 }
+int crearAnillo(nprocs){
+    pid_t childpid;
+    pid_t anterior;
+    int tuveria[2];
+    if (pipe(tuveria) == -1){
+        cout <<"Fallo la creacion del pipe" << endl;
+        return 0;
+    }
+    if (fork() == 0){
+        execl("./plp","./plp",char( *) 0);
+
+    }
+    dup2(tuveria[0],0);
+    dup2(tuveria[1],1);
+
+    for (int i=1;i<nprocs;i++){
+
+        /*crear proceso
+         pipe(nuevo, anterior)
+         anterior = nuevo*/
+    }
+    /*aque debo poner la tuveria que conectara el ultimo proceso
+    con el PLP, para cerra el anillo*/
+}
+

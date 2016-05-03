@@ -1,9 +1,11 @@
 #include "pcp.h"
 #include <iostream>
 #include <string>
+#include <map>
 using namespace std;
 
 int main(int argc, char** argv, char** envp){
+  map<int,bool> hilos; //para almacenar la tabla de hilos disponibles
   if(argc==3 or argc==5){
     if(string(argv[1]).compare("-i")!=0){
       printUsage();
@@ -18,7 +20,11 @@ int main(int argc, char** argv, char** envp){
     printUsage();
     return 1;
   }
-  //Work Work Work Work
+  cout << argv[2] << endl;
+  //Work Work Work Worksave in map c++(
+  //inicializo los hilos de este proceso en True, estan disponibles
+  for (int i=1;i<stoi(string(argv[4]));i++)
+    hilos[i] = true;
   return 0;
 }
 void printUsage(){
