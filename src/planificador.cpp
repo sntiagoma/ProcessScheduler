@@ -53,5 +53,6 @@ int main(int argc, char** argv, char** envp){
   for(auto i:mapHilos){ // Cambie los que estan
     hilos[i.first] = i.second;
   }
+  delete[] hilos;
   return 0;
 }
