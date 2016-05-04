@@ -55,9 +55,10 @@ int main(int argc, char** argv, char** envp){
   for(auto i:mapHilos){ // Cambie los que estan
     hilos[i.first] = i.second;
   }
+  cout << crearAnillo(n,hilos) << endl;
   return 0;
 }
-int crearAnillo(nprocs){
+int crearAnillo(int nprocs, int *hilos){
     pid_t childpid;
     pid_t anterior;
     int tuveria[2];
@@ -66,19 +67,24 @@ int crearAnillo(nprocs){
         return 0;
     }
     if (fork() == 0){
-        execl("./plp","./plp",char( *) 0);
-
+        execl("/","./plp");
+        cout<<"Si se imprime esto, no se pudo crear el programa";
     }
     dup2(tuveria[0],0);
     dup2(tuveria[1],1);
 
     for (int i=1;i<nprocs;i++){
-
-        /*crear proceso
-         pipe(nuevo, anterior)
-         anterior = nuevo*/
+        pipe(tuveria);
+        if (anterior = fork()){
+            execl("/","./pcp ","-i " + i," -t " + hilos[i]);
+            dup2(tuveria[1],1);
+        }else{
+            dup2(tuveria[0],0);
+        }
+        close(tuveria[0]);
+        close(tuveria[1]);
+        if (anterior)
+            break;
     }
-    /*aque debo poner la tuveria que conectara el ultimo proceso
-    con el PLP, para cerra el anillo*/
 }
 

@@ -5,6 +5,7 @@
 using namespace std;
 
 int main(int argc, char** argv, char** envp){
+  cout << "estas aqui";
   map<int,bool> hilos; //para almacenar la tabla de hilos disponibles
   if(argc==3 or argc==5){
     if(string(argv[1]).compare("-i")!=0){
