@@ -25,8 +25,8 @@ struct Mensaje {
 };
 */
 int main(int argc, char** argv, char** envp){
-  cout << generateRand(3,255) << endl;
-  return 0;
+   fprintf(stderr, "plp \n");
+   return 0;
 }
 
 int generateRand(int init, int final){
