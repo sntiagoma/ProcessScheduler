@@ -2,12 +2,22 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <unistd.h>
 using namespace std;
 
 int main(int argc, char** argv, char** envp){
-  cout << "estas aqui";
+  if(argc==1){
+    printUsage();
+    exit(1);
+  }
+  int pcpNumId = stoi(string(argv[2]));
+  int pcpNumHilos = 3;
+  if(argc==5){
+    pcpNumHilos = stoi(string(argv[4]));
+  }
   map<int,bool> hilos; //para almacenar la tabla de hilos disponibles
-  if(argc==3 or argc==5){
+  
+  /*if(argc==3 or argc==5){
     if(string(argv[1]).compare("-i")!=0){
       printUsage();
       return 1;
@@ -16,22 +26,42 @@ int main(int argc, char** argv, char** envp){
       printUsage();
       return 1;
     }
-
+    if(argc==5){
+      pcpNumHilos = stoi(string(argv[4]));
+    }
+    pcpNumId = string(argv[2]);
   }else{
     printUsage();
     return 1;
-  }
-  cout << argv[2] << endl;
+  }*/
   //Work Work Work Worksave in map c++(
   //inicializo los hilos de este proceso en True, estan disponibles
-  for (int i=1;i<stoi(string(argv[4]));i++)
-    hilos[i] = true;
+  //for (int i=1;i<stoi(string(argv[4]));i++)
+  //  hilos[i] = true;
+  #ifdef DEBUG
+    cerr << "I'm PCP " << pcpNumId << " with " << pcpNumHilos << " threads"
+    <<", PID: " << getpid() << " PPID " << getppid() << endl;
+    cerr.flush();
+  #endif
+  string a;
+  while (cin >> a){
+    #ifdef DEBUG
+      cerr << "Desde P" << argv[2] << ":" << endl;
+      cerr.flush();
+    #endif
+    cout << a << (char)(generateRand(97,122)) << endl;
+    cout.flush();
+  }
   return 0;
 }
 void printUsage(){
-  cout << "Modo de empleo: pcp -i nProceso [-t nHilos]" << endl
+  cerr << "Modo de empleo: pcp -i nProceso [-t nHilos]" << endl
   << "\t-i nProceso \t\t Identificador dentro del anillo" << endl
   << "\t-t nHilos \t\t Numero de hilos entre 2 y 10 (default: 3)"
   << endl;
-  cout.flush();
+  cerr.flush();
+}
+int generateRand(int init, int final){
+  srand(time(NULL)); //Actualizar el Reloj
+  return (rand()%(final-init))+init;
 }

@@ -1,6 +1,8 @@
 #include "plp.h"
 #include <cstdlib>
+#include <string>
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 const int MAX_TAREAS = 255;
 const int MAX_TEXT_TAREA = 64;
@@ -25,7 +27,22 @@ struct Mensaje {
 };
 */
 int main(int argc, char** argv, char** envp){
-  cout << generateRand(3,255) << endl;
+  #ifdef DEBUG
+    cerr << "I'm PLP, PID: " << getpid() << " PPID: " << getppid() << endl;
+    cerr.flush();
+  #endif
+  //cout << generateRand(3,255) << endl;
+  string a;
+  cout << "Example" << endl;
+  cout.flush();
+  while (cin >> a){
+    #ifdef DEBUG
+      cerr << "DESDE PLP" << endl;
+      cerr.flush();
+    #endif
+    cout << a << endl;
+    cout.flush();
+  }
   return 0;
 }
 
