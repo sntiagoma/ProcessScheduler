@@ -106,9 +106,9 @@ int main(int argc, char** argv, char** envp){
     }
   }
   //PCP
-  int pid;
+  pid_t pid;
   for (int i = 1; i < n; i++) {
-    pid_t pid = fork();
+    pid = fork();
     //Configurando Pipes
     if (pid == 0) {
       #ifdef DEBUG
@@ -126,7 +126,7 @@ int main(int argc, char** argv, char** envp){
           close(tuberias[j][0]);
           close(tuberias[j][1]);
         }
-        execlp("./pcp", "./pcp", "-i", to_string(j).c_str(), "-t", to_string(hilos[j]).c_str());
+        execlp("./pcp", "./pcp", "-i", to_string(i).c_str(), "-t", to_string(hilos[i]).c_str(), NULL);
       }
     }
   }
