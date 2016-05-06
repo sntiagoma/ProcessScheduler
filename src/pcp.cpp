@@ -43,6 +43,7 @@ int main(int argc, char** argv, char** envp){
     <<", PID: " << getpid() << " PPID " << getppid() << endl;
     cerr.flush();
   #endif
+
   string a;
   while (cin >> a){
     #ifdef DEBUG
@@ -51,7 +52,12 @@ int main(int argc, char** argv, char** envp){
     #endif
     cout << a << (char)(generateRand(97,122)) << endl;
     cout.flush();
-  }
+  }/*
+  int y = 0;
+  read(0,&y,sizeof(y));
+  ++y;
+  cerr << "Y :" << y << endl << flush;
+  write(1,&y,sizeof(y));*/
   return 0;
 }
 void printUsage(){

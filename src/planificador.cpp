@@ -93,15 +93,17 @@ int main(int argc, char** argv, char** envp){
       if(i==0){
         close(tuberias[i][0]);
         dup2(tuberias[i][1],1); //Donde va a Escribir
+        close(tuberias[i][1]); //?
       }else if(i==(n-1)){
         close(tuberias[i][1]);
         dup2(tuberias[i][0],0); //De donde va a Leer
+        close(tuberias[i][0]); //?
       }else{ //Cerrar los demas
         close(tuberias[i][0]);
         close(tuberias[i][1]);
       }
-      execlp("./plp","./plp", NULL);
     }
+    execlp("./plp","./plp", NULL);
   }
   //PCP
   pid_t pid;
@@ -117,15 +119,17 @@ int main(int argc, char** argv, char** envp){
         if (j == i) {
           close(tuberias[j][0]);
           dup2(tuberias[j][1], 1);
+          close(tuberias[j][1]);
         } else if (j == (i - 1)) {
           close(tuberias[j][1]);
           dup2(tuberias[j][0], 0);
+          close(tuberias[j][0]);
         } else {
           close(tuberias[j][0]);
           close(tuberias[j][1]);
         }
-        execlp("./pcp", "./pcp", "-i", to_string(i).c_str(), "-t", to_string(hilos[i]).c_str(), NULL);
       }
+      execlp("./pcp", "./pcp", "-i", to_string(i).c_str(), "-t", to_string(hilos[i]).c_str(), NULL);
     }
   }
   int status;

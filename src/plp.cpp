@@ -37,12 +37,18 @@ int main(int argc, char** argv, char** envp){
   cout.flush();
   while (cin >> a){
     #ifdef DEBUG
-      cerr << "DESDE PLP" << endl;
+      cerr << "DESDE PLP" << a << endl;
       cerr.flush();
     #endif
     cout << a << endl;
     cout.flush();
   }
+  /*char* algo = "Algo";
+  write(1,&x,sizeof(x));
+  int y = 0;
+  read(0,&y,sizeof(y));
+  cerr << "Es mierda llego con :" << to_string(y) << endl;
+  cerr.flush();*/
   return 0;
 }
 
