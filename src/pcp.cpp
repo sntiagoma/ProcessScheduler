@@ -44,20 +44,18 @@ int main(int argc, char** argv, char** envp){
     cerr.flush();
   #endif
 
-  string a;
-  while (cin >> a){
+  int num;
+  //while (cin >> a){
+  while (read(0,&num,sizeof(int))){
     #ifdef DEBUG
       cerr << "Desde P" << argv[2] << ":" << endl;
       cerr.flush();
     #endif
-    cout << a << (char)(generateRand(97,122)) << endl;
-    cout.flush();
-  }/*
-  int y = 0;
-  read(0,&y,sizeof(y));
-  ++y;
-  cerr << "Y :" << y << endl << flush;
-  write(1,&y,sizeof(y));*/
+    //cout << a << (char)(generateRand(97,122)) << endl;
+    //cout.flush();
+    ++num;
+    write(1,&num,sizeof(int));
+  }
   return 0;
 }
 void printUsage(){
@@ -66,8 +64,4 @@ void printUsage(){
   << "\t-t nHilos \t\t Numero de hilos entre 2 y 10 (default: 3)"
   << endl;
   cerr.flush();
-}
-int generateRand(int init, int final){
-  srand(time(NULL)); //Actualizar el Reloj
-  return (rand()%(final-init))+init;
 }

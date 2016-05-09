@@ -32,16 +32,20 @@ int main(int argc, char** argv, char** envp){
     cerr.flush();
   #endif
   //cout << generateRand(3,255) << endl;
-  string a;
-  cout << "Example" << endl;
-  cout.flush();
-  while (cin >> a){
+  //string a;
+  int num = 0;
+  //cout << "Example" << endl;
+  //cout.flush();
+  write(1,&num,sizeof(int));
+  //while (cin >> a){
+  while(read(0,&num,sizeof(int))){ 
     #ifdef DEBUG
-      cerr << "DESDE PLP" << a << endl;
+      cerr << "DESDE PLP- num:" << num << endl;
       cerr.flush();
     #endif
-    cout << a << endl;
-    cout.flush();
+    write(1,&num,sizeof(int));
+    //cout << a << endl;
+    //cout.flush();
   }
   /*char* algo = "Algo";
   write(1,&x,sizeof(x));
