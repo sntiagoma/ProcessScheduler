@@ -2,14 +2,22 @@
 #include <iostream>
 #include <map>
 #include <unistd.h>
+#include <string.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
 using namespace std;
 
 typedef int Pipe[2];
-
 int main(int argc, char** argv, char** envp){
+  char *dirPLP = getenv("PLN_DIR_PLP");
+  char *dirPCP = getenv("PLN_DIR_PCP");
+
+
+  //string plp = dirPLP + string("plp");
+  //string pcp = dirPCP + string("pcp");
   if(argc==1){
+    cerr << dirPLP << endl;
     cerr << "Modo de empleo: planificador [-l <plpname>] -n N [-t npcp totalHilos ...]" << endl;
     return 1;
   }
@@ -68,7 +76,7 @@ int main(int argc, char** argv, char** envp){
     for(int i=0; i<n; i++){
       cout << "hilos[" << i << "]" << "=" << hilos[i] << endl;
     }
-  #endif  
+  #endif
   //Inicializando Matrix de Tuberias
   int** tuberias = new int*[n];
   //Crea Matrix e Inicializa los Arreglos
@@ -103,7 +111,7 @@ int main(int argc, char** argv, char** envp){
         close(tuberias[i][1]);
       }
     }
-    execlp("./plp","./plp", NULL);
+    execl(strcat(dirPLP,"plp"),"./plp", NULL);
   }
   //PCP
   pid_t pid;
@@ -129,7 +137,7 @@ int main(int argc, char** argv, char** envp){
           close(tuberias[j][1]);
         }
       }
-      execlp("./pcp", "./pcp", "-i", to_string(i).c_str(), "-t", to_string(hilos[i]).c_str(), NULL);
+     execl(strcat(dirPCP,"pcp"), "./pcp", "-i", to_string(i).c_str(), "-t", to_string(hilos[i]).c_str(), NULL);
     }
   }
   int status;
@@ -146,4 +154,3 @@ int main(int argc, char** argv, char** envp){
 
   return 0;
 }
-
