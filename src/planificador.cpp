@@ -3,23 +3,25 @@
 #include <map>
 #include <unistd.h>
 #include <sys/wait.h>
+#include "structs.h"
 
 using namespace std;
-
-typedef int Pipe[2];
 
 int main(int argc, char** argv, char** envp){
   if(argc==1){
     cerr << "Modo de empleo: planificador [-l <plpname>] -n N [-t npcp totalHilos ...]" << endl;
-    return 1;
+    exit(1);
   }
+  /*
+   * PARAMETROS 
+   */
   int tempn, tempp, temph;
   extern char *optarg;
   extern int optind, opterr, optopt;
   int option;
   string plpname = string(""); //Nombre del PLP
   int n = 3; //Numero de procesos
-  map<int,int> mapHilos; //Mapa con proceso y cuantos hilos tiene
+  map<int,int> mapHilos; //Mapa con proceso y cuantos procesos tiene
   while ((option = getopt(argc, argv, "l:n:t:")) != -1) {
     switch (option) {
       case 'l':
@@ -57,47 +59,49 @@ int main(int argc, char** argv, char** envp){
       break;
     }
   }
-  int* hilos = new int[n];
-  for(int i=0; i<n; i++){ //Inicialice en 3
-    hilos[i] = 3;
+  /**
+   * CREAR PROCESOS
+   */
+  int* procesos = new int[n];
+  for(int i=0; i<n; i++){ //Inicializamos todos en 3
+    procesos[i] = 3;
   }
-  for(auto i:mapHilos){ // Cambie los que estan
-    hilos[i.first] = i.second;
+  for(auto i:mapHilos){ // Cambiamos los que por parametros tienen != de 3
+    procesos[i.first] = i.second;
   }
   #ifdef DEBUG
     for(int i=0; i<n; i++){
-      cout << "hilos[" << i << "]" << "=" << hilos[i] << endl;
+      cerr << "procesos[" << i << "]" << "=" << procesos[i] << endl;
+      cerr.flush();
     }
   #endif  
-  //Inicializando Matrix de Tuberias
-  int** tuberias = new int*[n];
-  //Crea Matrix e Inicializa los Arreglos
-  for (int i = 0; i < n; i++){
+  /**
+   * PIPES y CREACION DE PROCESOS
+   */
+  int** tuberias = new int*[n]; //Matrix de Pipes
+  for (int i = 0; i < n; i++){   //Crea Matrix e Inicializa los Arreglos
     tuberias[i] = new int[2];
   }
-  //Crear los Pipes
-  for (int i = 0; i < n; i++){
+  for (int i = 0; i < n; i++){ //Crear los Pipes
     pipe(tuberias[i]);
   }
   #ifdef DEBUG
     cerr << "Planificador PID: " << getpid() << " and PPID: " << getppid() << endl;
   #endif
-  //PLP
-  if(fork()==0){
+  if(fork()==0){ //Creacion del PLP
     #ifdef DEBUG
       cerr << "I'm 0 process, I'm the PLP PID: " << getpid() << " and my parent is " << getppid() << endl;
       cerr.flush();
     #endif
-    //Configurando Pipes
-    for(int i=0; i<n; i++){
+    for(int i=0; i<n; i++){ //Configurando Pipes para el PLP
       if(i==0){
         close(tuberias[i][0]);
         dup2(tuberias[i][1],1); //Donde va a Escribir
-        close(tuberias[i][1]); //?
+        close(tuberias[i][1]);
       }else if(i==(n-1)){
         close(tuberias[i][1]);
         dup2(tuberias[i][0],0); //De donde va a Leer
-        close(tuberias[i][0]); //?
+        close(tuberias[i][0]);
       }else{ //Cerrar los demas
         close(tuberias[i][0]);
         close(tuberias[i][1]);
@@ -105,17 +109,15 @@ int main(int argc, char** argv, char** envp){
     }
     execlp("./plp","./plp", NULL);
   }
-  //PCP
   pid_t pid;
-  for (int i = 1; i < n; i++) {
+  for (int i = 1; i < n; i++) { //Creacion de (n-1) PCPs
     pid = fork();
-    //Configurando Pipes
-    if (pid == 0) {
+    if (pid == 0) { //Creacion de PCP
       #ifdef DEBUG
           cerr << "I'm " << i << " process, I'm a PCP PID: " << getppid() << " and my parent is " << getppid() << endl;
           cerr.flush();
       #endif
-      for (int j = 0; j < n; j++) {
+      for (int j = 0; j < n; j++) { //Configurando Pipes para los PCP
         if (j == i) {
           close(tuberias[j][0]);
           dup2(tuberias[j][1], 1);
@@ -129,21 +131,28 @@ int main(int argc, char** argv, char** envp){
           close(tuberias[j][1]);
         }
       }
-      execlp("./pcp", "./pcp", "-i", to_string(i).c_str(), "-t", to_string(hilos[i]).c_str(), NULL);
+      execlp("./pcp", "./pcp", "-i", to_string(i).c_str(), "-t", to_string(procesos[i]).c_str(), NULL);
     }
   }
+
+
+
+  /**
+   * WAITS
+   */
   int status;
   for (int i = 0; i < n; i++){
     wait(&status);
   }
-  delete[] hilos;
+  /**
+   * DELETES
+   */
+  delete[] procesos;
   //Eliminando Matrix de Tuberias
   for (int i = 0; i < n; i++){
     delete[] tuberias[i];
   }
   delete[] tuberias;
-  //cout << crearAnillo(n,hilos) << endl;
-
   return 0;
 }
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <unistd.h>
+#include "structs.h"
 using namespace std;
 
 int main(int argc, char** argv, char** envp){
@@ -16,28 +17,6 @@ int main(int argc, char** argv, char** envp){
     pcpNumHilos = stoi(string(argv[4]));
   }
   map<int,bool> hilos; //para almacenar la tabla de hilos disponibles
-  
-  /*if(argc==3 or argc==5){
-    if(string(argv[1]).compare("-i")!=0){
-      printUsage();
-      return 1;
-    }
-    if(argc==5 and string(argv[3]).compare("-t")!=0){
-      printUsage();
-      return 1;
-    }
-    if(argc==5){
-      pcpNumHilos = stoi(string(argv[4]));
-    }
-    pcpNumId = string(argv[2]);
-  }else{
-    printUsage();
-    return 1;
-  }*/
-  //Work Work Work Worksave in map c++(
-  //inicializo los hilos de este proceso en True, estan disponibles
-  //for (int i=1;i<stoi(string(argv[4]));i++)
-  //  hilos[i] = true;
   #ifdef DEBUG
     cerr << "I'm PCP " << pcpNumId << " with " << pcpNumHilos << " threads"
     <<", PID: " << getpid() << " PPID " << getppid() << endl;
@@ -51,8 +30,6 @@ int main(int argc, char** argv, char** envp){
       cerr << "Desde P" << argv[2] << ":" << endl;
       cerr.flush();
     #endif
-    //cout << a << (char)(generateRand(97,122)) << endl;
-    //cout.flush();
     ++num;
     write(1,&num,sizeof(int));
   }

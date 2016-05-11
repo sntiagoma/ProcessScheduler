@@ -12,7 +12,7 @@ bin/plp: src/plp.o
 	$(CXX) -o $@ $^
 
 # Objetos
-src/planificador.o: src/planificador.cpp src/planificador.h bin
+src/planificador.o: src/planificador.cpp src/planificador.h src/structs.h bin
 src/pcp.o: src/pcp.cpp src/pcp.h bin
 src/plp.o: src/plp.cpp src/plp.h	bin
 
