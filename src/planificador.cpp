@@ -19,10 +19,10 @@ int main(int argc, char** argv, char** envp){
   /*
    * PARAMETROS 
    */
-   int tempn, tempp, temph;
-   extern char *optarg;
-   extern int optind, opterr, optopt;
-   int option;
+  int tempn, tempp, temph;
+  extern char *optarg;
+  extern int optind, opterr, optopt;
+  int option;
   string plpname = string("plp"); //Nombre del PLP
   int n = 3; //Numero de procesos
   map<int,int> mapHilos; //Mapa con proceso y cuantos procesos tiene
@@ -30,18 +30,18 @@ int main(int argc, char** argv, char** envp){
     switch (option) {
       case 'l':
       plpname = string(optarg);
-          #ifdef DEBUG
-      cerr <<"plpname: " << plpname << endl;
-      cerr.flush();
-          #endif
+      #ifdef DEBUG
+        cerr <<"plpname: " << plpname << endl;
+        cerr.flush();
+      #endif
       break;
 
       case 'n':
       tempn = stoi(string(optarg));
-          #ifdef DEBUG
-      cerr <<"n: " << tempn << endl;
-      cerr.flush();
-          #endif
+      #ifdef DEBUG
+        cerr <<"n: " << tempn << endl;
+        cerr.flush();
+      #endif
       if(tempn>=2 and tempn<=255){
         n=tempn;
       }else{
@@ -56,17 +56,17 @@ int main(int argc, char** argv, char** envp){
       }
       temph = stoi(string(argv[optind]));
       mapHilos[tempp] = temph;
-          #ifdef DEBUG
-      cerr << "P:" << tempp << "- H:" << temph << endl;
-      cerr.flush();
-          #endif
+      #ifdef DEBUG
+        cerr << "P:" << tempp << "- H:" << temph << endl;
+        cerr.flush();
+      #endif
       break;
     }
   }
   /**
    * CREAR PROCESOS
    */
-   int* procesos = new int[n];
+  int* procesos = new int[n];
   for(int i=0; i<n; i++){ //Inicializamos todos en 3
     procesos[i] = 3;
   }
@@ -74,10 +74,10 @@ int main(int argc, char** argv, char** envp){
     procesos[i.first] = i.second;
   }
   #ifdef DEBUG
-  for(int i=0; i<n; i++){
-    cerr << "procesos[" << i << "]" << "=" << procesos[i] << endl;
-    cerr.flush();
-  }
+    for(int i=0; i<n; i++){
+      cerr << "procesos[" << i << "]" << "=" << procesos[i] << endl;
+      cerr.flush();
+    }
   #endif  
   /**
    * PIPES y CREACION DE PROCESOS
@@ -90,12 +90,12 @@ int main(int argc, char** argv, char** envp){
     pipe(tuberias[i]);
   }
   #ifdef DEBUG
-  cerr << "Planificador PID: " << getpid() << " and PPID: " << getppid() << endl;
+    cerr << "Planificador PID: " << getpid() << " and PPID: " << getppid() << endl << flush;
   #endif
   if(fork()==0){ //Creacion del PLP
     #ifdef DEBUG
-    cerr << "I'm 0 process, I'm the PLP PID: " << getpid() << " and my parent is " << getppid() << endl;
-    cerr.flush();
+      cerr << "I'm 0 process, I'm the PLP PID: " << getpid() << " and my parent is " << getppid() << endl;
+      cerr.flush();
     #endif
     for(int i=0; i<n; i++){ //Configurando Pipes para el PLP
       if(i==0){
@@ -113,7 +113,7 @@ int main(int argc, char** argv, char** envp){
     }
     string PLPDirectory = string(dirPLP)+string("/")+plpname;
     #ifdef DEBUG
-    cerr << "PLP path:" << PLPDirectory.c_str() << endl << flush;
+      cerr << "PLP path:" << PLPDirectory.c_str() << endl << flush;
     #endif
     execl(PLPDirectory.c_str(),plpname.c_str(), NULL);
   }
@@ -122,8 +122,8 @@ int main(int argc, char** argv, char** envp){
     pid = fork();
     if (pid == 0) { //Creacion de PCP
       #ifdef DEBUG
-      cerr << "I'm " << i << " process, I'm a PCP PID: " << getppid() << " and my parent is " << getppid() << endl;
-      cerr.flush();
+        cerr << "I'm " << i << " process, I'm a PCP PID: " << getppid() << " and my parent is " << getppid() << endl;
+        cerr.flush();
       #endif
       for (int j = 0; j < n; j++) { //Configurando Pipes para los PCP
         if (j == i) {
@@ -141,27 +141,24 @@ int main(int argc, char** argv, char** envp){
       }
       string PCPDirectory = string(dirPCP)+string("/")+string("pcp");
       #ifdef DEBUG
-      cerr << "PCP path:" << PCPDirectory.c_str() << endl << flush;
+        cerr << "PCP path:" << PCPDirectory.c_str() << endl << flush;
       #endif
       execl(PCPDirectory.c_str(), "pcp", "-i", to_string(i).c_str(), "-t", to_string(procesos[i]).c_str(), NULL);
     }
   }
-
-
-
   /**
    * WAITS
    */
-   int status;
-   for (int i = 0; i < n; i++){
+  int status;
+  for (int i = 0; i < n; i++){
     wait(&status);
   }
   /**
    * DELETES
    */
-   delete[] procesos;
+  delete[] procesos;
   //Eliminando Matrix de Tuberias
-   for (int i = 0; i < n; i++){
+  for (int i = 0; i < n; i++){
     delete[] tuberias[i];
   }
   delete[] tuberias;

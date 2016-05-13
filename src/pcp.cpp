@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <unistd.h>
+#include <typeinfo>
 #include "structs.h"
 using namespace std;
 
@@ -23,16 +24,55 @@ int main(int argc, char** argv, char** envp){
     cerr.flush();
   #endif
 
-  int num;
-  //while (cin >> a){
-  while (read(0,&num,sizeof(int))){
-    #ifdef DEBUG
-      cerr << "Desde P" << argv[2] << ":" << endl;
-      cerr.flush();
-    #endif
-    ++num;
-    write(1,&num,sizeof(int));
+  int num ;
+  Mensaje* mensaje = new Mensaje;
+  while (read(0,mensaje,sizeof(Mensaje))){
+    //Reseterar Tareas y Estadistica
+    mensaje->tareas = new Tarea* [mensaje->nTareas];
+    mensaje->estadisticas = new Estadistica* [mensaje->nEstadisticas];
+    //Reservar Espacio c/Tarea y c/Estadistica
+    for(int i=0; i<(mensaje->nTareas); i++){
+      mensaje->tareas[i] = new Tarea;
+    }
+    for(int i=0; i<(mensaje->nEstadisticas); i++){
+      mensaje->estadisticas[i] = new Estadistica;
+    }
+    //Leer Tareas
+    for(int i=0; i<mensaje->nTareas; i++){
+      read(0,mensaje->tareas[i],sizeof(Tarea));
+    }
+    //Leer Estadisticas
+    for(int i=0; i<mensaje->nEstadisticas; i++){
+      read(0,mensaje->estadisticas[i],sizeof(Estadistica));
+    }
+
+    /**
+     * Do Something
+     */
+    //++mensaje->tareas[0]->procesoId;
+
+    //Enviar Mensaje
+    write(1,mensaje,sizeof(Mensaje));
+    //Enviar Tareas
+    for(int i=0; i<mensaje->nTareas; i++){
+      write(1,mensaje->tareas[i],sizeof(Tarea));
+    }
+    //Enviar Estadisticas
+    for(int i=0; i<mensaje->nEstadisticas; i++){
+      write(1,mensaje->estadisticas[i],sizeof(Estadistica));
+    }
+
+    // Deletes
+    for(int i=0; i<mensaje->nTareas; i++){
+      delete mensaje->tareas[i];
+    }
+    delete[] mensaje->tareas;
+    for(int i=0; i<mensaje->nEstadisticas; i++){
+      delete mensaje->estadisticas[i];
+    }
+    delete[] mensaje->estadisticas;
   }
+  delete mensaje;
   return 0;
 }
 void printUsage(){

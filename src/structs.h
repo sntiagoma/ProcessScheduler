@@ -1,5 +1,13 @@
 #pragma once
 
+char tareasArray[6][64] = {
+  "tarea01",
+  "tarea02",
+  "tarea03",
+  "tarea04",
+  "tarea05",
+  "tarea06"
+};
 const int MAX_TAREAS =  256;
 const int MAX_TEXT_TAREA = 64;
 
@@ -19,6 +27,6 @@ struct Estadistica {
 struct Mensaje{
   unsigned nTareas;
   unsigned nEstadisticas;
-  Tarea* tareas;
-  Estadistica* estadisticas;
+  Tarea** tareas;
+  Estadistica** estadisticas;
 };
