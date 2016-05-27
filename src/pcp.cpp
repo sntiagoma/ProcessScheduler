@@ -4,6 +4,8 @@
 #include <map>
 #include <unistd.h>
 #include <typeinfo>
+#include <pthread.h>
+#include <semaphore.h>
 #include "structs.h"
 using namespace std;
 
@@ -17,14 +19,16 @@ int main(int argc, char** argv, char** envp){
   if(argc==5){
     pcpNumHilos = stoi(string(argv[4]));
   }
-  map<int,bool> hilos; //para almacenar la tabla de hilos disponibles
   #ifdef DEBUG
     cerr << "I'm PCP " << pcpNumId << " with " << pcpNumHilos << " threads"
     <<", PID: " << getpid() << " PPID " << getppid() << endl;
     cerr.flush();
   #endif
+  //Hilos
+  //pthread_t hilo1;
+  //pthread_create(&hilo1, NULL, hilo, NULL);
 
-  int num ;
+
   Mensaje* mensaje = new Mensaje;
   while (read(0,mensaje,sizeof(Mensaje))){
     //Reseterar Tareas y Estadistica
@@ -73,12 +77,19 @@ int main(int argc, char** argv, char** envp){
     delete[] mensaje->estadisticas;
   }
   delete mensaje;
+  //pthread_exit(NULL);
   return 0;
 }
+
 void printUsage(){
   cerr << "Modo de empleo: pcp -i nProceso [-t nHilos]" << endl
   << "\t-i nProceso \t\t Identificador dentro del anillo" << endl
   << "\t-t nHilos \t\t Numero de hilos entre 2 y 10 (default: 3)"
   << endl;
   cerr.flush();
+}
+
+void * hilo(void * var ){
+
+  return NULL;
 }

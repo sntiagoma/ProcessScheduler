@@ -1,4 +1,4 @@
-CXXFLAGS=-std=c++11
+CXXFLAGS=-std=c++11 -lpthread
 all: bin/planificador bin/pcp bin/plp
 
 # Binarios
@@ -9,7 +9,7 @@ bin/pcp: src/pcp.o
 	$(CXX) -o $@ $^
 
 bin/plp: src/plp.o
-	$(CXX) -o $@ $^
+	$(CXX) -lpthread -o $@ $^
 
 # Objetos
 src/planificador.o: src/planificador.cpp src/planificador.h src/structs.h bin
