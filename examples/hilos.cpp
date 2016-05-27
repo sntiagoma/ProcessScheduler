@@ -43,6 +43,6 @@ void* hilo(void* args){
 	int h = *((int*)args);
 	while(true){
 		sem_wait(&queue);
-		cout << "Respondio, Hilo_" << h << ":" << " working" << endl;
+		cerr << "Respondio Hilo_" << h << endl << flush;
 	}
 }

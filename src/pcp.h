@@ -1,2 +1,2 @@
 void printUsage();
-void * hilo(void * var );
+void * hilo(void * var);

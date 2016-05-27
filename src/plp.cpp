@@ -30,8 +30,8 @@ int main(int argc, char** argv, char** envp){
     mensaje->tareas[i] = new Tarea;
     mensaje->tareas[i]->asignado = false;
     #ifdef DEBUG
-      cerr << "Tipo: " << typeid(mensaje->tareas[i]->tareaAEjecutar).name() << endl << flush;
-      cerr << "OTipo: "<< typeid(tareasArray[0]).name() << endl << flush; 
+      //cerr << "Tipo: " << typeid(mensaje->tareas[i]->tareaAEjecutar).name() << endl << flush;
+      //cerr << "OTipo: "<< typeid(tareasArray[0]).name() << endl << flush; 
     #endif
     strcpy(mensaje->tareas[i]->tareaAEjecutar,tareasArray[generateRand(0,6)]);
     mensaje->tareas[i]->procesoId = 0;

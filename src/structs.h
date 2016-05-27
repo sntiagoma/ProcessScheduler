@@ -30,3 +30,8 @@ struct Mensaje{
   Tarea** tareas;
   Estadistica** estadisticas;
 };
+
+struct HiloInfo{
+  unsigned id;
+  unsigned pid;
+};

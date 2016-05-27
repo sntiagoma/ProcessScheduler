@@ -13,7 +13,7 @@ int main(int argc, char** argv, char** envp){
   char *dirPCP = getenv("PLN_DIR_PCP");
   if(argc==1){
     cerr << dirPLP << endl;
-    cerr << "Modo de empleo: planificador [-l <plpname>] -n N [-t npcp totalHilos ...]" << endl;
+    cerr << "Modo de empleo: planificador [-l <plpname>] -n N [-t #pcp totalHilos ...]" << endl;
     exit(1);
   }
   /*
