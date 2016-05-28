@@ -49,7 +49,7 @@ int main(int argc, char** argv, char** envp){
             case 'n':
                 tempn = stoi(string(optarg));
                 #ifdef DEBUG
-                    print(string("#procesos:")+to_string(tempn));
+                    print(string("#procesos:")+to_string(tempn)+ln);
                 #endif
                 if(tempn>=2 and tempn<=255){
                     n=tempn;
@@ -90,7 +90,7 @@ int main(int argc, char** argv, char** envp){
         procesos[i.first] = i.second;
     }
     #ifdef DEBUG
-        for(int i=0; i<n; i++){
+        for(int i=1; i<n; i++){
             print(string("P")+to_string(i)+string("=")
                 +to_string(procesos[i])+ln);
         }

@@ -92,6 +92,10 @@ int main(int argc, char** argv, char** envp){
     ***************************************************************************/
     int nTareas = 0;
     read(0,&nTareas,sizeof(nTareas)); //Recibir
+    #ifdef DEBUG
+        print(string("P")+to_string(pcpNumId)+string(" get nTareas=")+
+            to_string(nTareas)+ln);
+    #endif
     write(1,&nTareas,sizeof(nTareas)); //Pasar al Siguiente PCP
 
     Mensaje* mensaje = new Mensaje;
