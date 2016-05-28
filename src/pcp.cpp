@@ -1,5 +1,4 @@
 #include "pcp.h"
-#include <iostream>
 #include <string>
 #include <map>
 #include <unistd.h>
@@ -10,22 +9,32 @@
 
 using namespace std;
 
-sem_t queue, mutex;
+sem_t queue, mutex, msg;
+string ln = string("\n");
 
 void printUsage(){
-    cerr << "Modo de empleo: pcp -i nProceso [-t nHilos]" << endl
-    << "\t-i nProceso \t\t Identificador dentro del anillo" << endl
-    << "\t-t nHilos \t\t Numero de hilos entre 2 y 10 (default: 3)"
-    << endl;
-    cerr.flush();
+    string message = string(
+        "Modo de empleo: pcp -i nProceso [-t nHilos]\n\
+        \t-i nProceso \t Identificador dentro del anillo\n\
+        \t-t nHilos \t Numero de hilos entre 2 y 10 (default: 3)"
+    );
+    write(2, message.c_str(), sizeof(char)*message.size());
+}
+
+void print(string message){
+    sem_wait(&msg);
+        write(2, message.c_str(), sizeof(char)*message.size());
+    sem_post(&msg);
 }
 
 void* hilo(void* args){
     HiloInfo* hilo_param = (HiloInfo*)args;
     #ifdef DEBUG
         sem_wait(&mutex);
-        cerr << "\t\tDesde el Hilo_" << hilo_param->id << " del Proceso_" << hilo_param->pid
-            << endl << flush;
+        print(
+            string("New Thread, PID:")+to_string(hilo_param->pid)+
+            string(", ID:")+to_string(hilo_param->id)
+        );
         sem_post(&mutex);
     #endif
 }
@@ -40,11 +49,6 @@ int main(int argc, char** argv, char** envp){
     if(argc==5){
         pcpNumHilos = stoi(string(argv[4]));
     }
-    #ifdef DEBUG
-        cerr << "I'm PCP " << pcpNumId << " with " << pcpNumHilos << " threads"
-            <<", PID: " << getpid() << " PPID " << getppid() << endl;
-        cerr.flush();
-    #endif
 
     /***************************************************************************
     *   
@@ -54,6 +58,15 @@ int main(int argc, char** argv, char** envp){
 
     sem_init(&queue, 0, 0); //Cola de procesos esperando (De sincronización)
     sem_init(&mutex, 0, 1); //Mutex acceso a 
+    sem_init(&msg,   0, 1); //Mutex acceso a print()
+
+
+    #ifdef DEBUG
+        print(string("New PCP, id:")+to_string(pcpNumId)+string(" #thread:")+
+            to_string(pcpNumHilos)+string(", PID:")+to_string(getpid())+
+            string(", PPID:")+to_string(getppid())+ln
+        );
+    #endif
 
     /***************************************************************************
     *   
