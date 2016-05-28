@@ -72,6 +72,15 @@ int main(int argc, char** argv, char** envp){
         pthread_create(hilos[i], NULL, &hilo, (void*)hilo_param); //Creando proceso
     }
 
+    /***************************************************************************
+    *   
+    *   Recibir Numero de Tareas
+    *
+    ***************************************************************************/
+    int nTareas = 0;
+    read(0,&nTareas,sizeof(nTareas)); //Recibir
+    write(1,&nTareas,sizeof(nTareas)); //Pasar al Siguiente PCP
+
     Mensaje* mensaje = new Mensaje;
     while (read(0,mensaje,sizeof(Mensaje))){
         //Reseterar Tareas y Estadistica

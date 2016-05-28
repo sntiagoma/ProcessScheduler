@@ -24,8 +24,14 @@ int main(int argc, char** argv, char** envp){
     *
     ***************************************************************************/
     int nTareas = generateRand(3,255);
+    int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
         cerr << "nTareas: " << nTareas << endl << flush;
+    #endif
+    write(1,&nTareas,sizeof(nTareas)); //Enviando #Tareas
+    read(0,&nTareasR,sizeof(int)); //Recibiendo Numero de Tareas
+    #ifdef DEBUG
+        cerr << "nTareasR: " << nTareas << endl << flush;
     #endif
 
     /***************************************************************************
