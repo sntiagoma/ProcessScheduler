@@ -2,21 +2,27 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <iostream>
 #include <unistd.h>
 #include <typeinfo>
 #include "structs.h"
 using namespace std;
 
+string ln = string("\n");
+
 int generateRand(int init, int final){
     return (rand()%(final-init))+init;
+}
+
+void print(string message){
+    write(2, message.c_str(), sizeof(char)*message.size());
 }
 
 int main(int argc, char** argv, char** envp){
     srand(time(NULL)); //Reloj
     #ifdef DEBUG
-        cerr << "I'm PLP, PID: " << getpid() << " PPID: " << getppid() << endl;
-        cerr.flush();
+        print(string("New PLP, PID:")+to_string(getpid())+
+            string(", PPID:")+to_string(getppid())+ln
+        );
     #endif
     /***************************************************************************
     *   
@@ -26,12 +32,12 @@ int main(int argc, char** argv, char** envp){
     int nTareas = generateRand(3,255);
     int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
-        cerr << "nTareas: " << nTareas << endl << flush;
+        print(string("i> PLP #tareas:")+to_string(nTareas)+ln);
     #endif
     write(1,&nTareas,sizeof(nTareas)); //Enviando #Tareas
     read(0,&nTareasR,sizeof(int)); //Recibiendo Numero de Tareas
     #ifdef DEBUG
-        cerr << "nTareasR: " << nTareas << endl << flush;
+        print(string("i> PLP #tareas recibidas:")+to_string(nTareasR)+ln);
     #endif
 
     /***************************************************************************
@@ -53,10 +59,6 @@ int main(int argc, char** argv, char** envp){
     for(int i=0; i<(mensaje->nTareas); i++){
         mensaje->tareas[i] = new Tarea;
         mensaje->tareas[i]->asignado = false;
-        #ifdef DEBUG
-            //cerr << "Tipo: " << typeid(mensaje->tareas[i]->tareaAEjecutar).name() << endl << flush;
-            //cerr << "OTipo: "<< typeid(tareasArray[0]).name() << endl << flush; 
-        #endif
         strcpy(mensaje->tareas[i]->tareaAEjecutar,tareasArray[generateRand(0,6)]);
         mensaje->tareas[i]->procesoId = 0;
         mensaje->tareas[i]->hiloId = 0;
@@ -72,13 +74,6 @@ int main(int argc, char** argv, char** envp){
         mensaje->estadisticas[i]->procesoId = 0;
         mensaje->estadisticas[i]->hiloId = 0;
     }
-    #ifdef DEBUG
-        cerr << "Mensaje->nTareas: " << mensaje->nTareas
-        << ", sizeof(mensaje):" << sizeof(*mensaje) << endl 
-        << "\tsizeof(tareas):" << sizeof(*(mensaje->tareas)) << endl
-        << "\tsizeof(estadisticas):" << sizeof(*(mensaje->estadisticas)) << endl
-        << flush;
-    #endif
 
     /***************************************************************************
     *   
@@ -119,7 +114,7 @@ int main(int argc, char** argv, char** envp){
         
         #ifdef DEBUG
             int rDn = generateRand(0,nTareas-1);
-            cerr << "PLP T" << rDn << " PID: " << mensaje->tareas[rDn]->tareaAEjecutar << endl << flush;
+            print(string("PLP T")+to_string(rDn)+string(", PID:")+string(mensaje->tareas[rDn]->tareaAEjecutar)+ln);
         #endif
 
         //Enviar Mensaje

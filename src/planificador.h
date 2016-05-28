@@ -1,1 +1,2 @@
-int crearAnillo(int,int*);
+#include <string>
+void print(std::string message);

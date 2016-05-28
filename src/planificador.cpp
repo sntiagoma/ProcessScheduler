@@ -8,12 +8,20 @@
 
 using namespace std;
 
+string ln = string("\n");
+
+void print(string message){
+    write(2, message.c_str(), sizeof(char)*message.size());
+}
+
 int main(int argc, char** argv, char** envp){
     char *dirPLP = getenv("PLN_DIR_PLP");
     char *dirPCP = getenv("PLN_DIR_PCP");
     if(argc==1){
-        cerr << dirPLP << endl;
-        cerr << "Modo de empleo: planificador [-l <plpname>] -n N [-t #pcp totalHilos ...]" << endl;
+        print(string(dirPLP)+ln
+            +string("Modo de empleo: planificador [-l <plpname>]\
+            -n N [-t #pcp totalHilos ...]")+ln
+        );
         exit(1);
     }
 
@@ -34,16 +42,14 @@ int main(int argc, char** argv, char** envp){
             case 'l':
                 plpname = string(optarg);
                 #ifdef DEBUG
-                    cerr <<"plpname: " << plpname << endl;
-                    cerr.flush();
+                    print(string("plpname:")+plpname+ln);
                 #endif
             break;
     
             case 'n':
                 tempn = stoi(string(optarg));
                 #ifdef DEBUG
-                    cerr <<"n: " << tempn << endl;
-                    cerr.flush();
+                    print(string("#procesos:")+to_string(tempn));
                 #endif
                 if(tempn>=2 and tempn<=255){
                     n=tempn;
@@ -60,8 +66,11 @@ int main(int argc, char** argv, char** envp){
                 temph = stoi(string(argv[optind]));
                 mapHilos[tempp] = temph;
                 #ifdef DEBUG
-                    cerr << "P:" << tempp << "- H:" << temph << endl;
-                    cerr.flush();
+                    print(
+                        string("Process:")+to_string(tempp)+
+                        string(" 'll have ")+to_string(temph)
+                        +string(" threads")+ln
+                    );
                 #endif
             break;
         }
@@ -82,8 +91,8 @@ int main(int argc, char** argv, char** envp){
     }
     #ifdef DEBUG
         for(int i=0; i<n; i++){
-            cerr << "procesos[" << i << "]" << "=" << procesos[i] << endl;
-            cerr.flush();
+            print(string("P")+to_string(i)+string("=")
+                +to_string(procesos[i])+ln);
         }
     #endif  
 
@@ -92,7 +101,6 @@ int main(int argc, char** argv, char** envp){
     *   Pipes y Procesos
     *
     ***************************************************************************/
-
     int** tuberias = new int*[n]; //Matrix de Pipes
     for (int i = 0; i < n; i++){   //Crea Matrix e Inicializa los Arreglos
         tuberias[i] = new int[2];
@@ -100,10 +108,16 @@ int main(int argc, char** argv, char** envp){
     for (int i = 0; i < n; i++){ //Crear los Pipes
         pipe(tuberias[i]);
     }
+    string PLPDirectory = string(dirPLP)+string("/")+plpname;
+    string PCPDirectory = string(dirPCP)+string("/")+string("pcp");
     #ifdef DEBUG
-        cerr << "Planificador PID: " << getpid() << " and PPID: " << getppid() << endl << flush;
+        print(string("PLP path:")+PLPDirectory+ln);
+        print(string("PCP path:")+PCPDirectory+ln);
+        print(
+            string("Planificador, PID:")+to_string(getpid())
+            +string(", PPID:")+to_string(getppid())+ln
+        );
     #endif
-
     /***************************************************************************
     *   
     *   PLP
@@ -111,8 +125,10 @@ int main(int argc, char** argv, char** envp){
     ***************************************************************************/
     if(fork()==0){ //Creacion del PLP
         #ifdef DEBUG
-            cerr << "I'm 0 process, I'm the PLP PID: " << getpid() << " and my parent is " << getppid() << endl;
-            cerr.flush();
+            print(
+                string("Fork P0-PLP, PID:")+to_string(getpid())+
+                string(", PPID:")+to_string(getppid())+ln
+            );
         #endif
         for(int i=0; i<n; i++){ //Configurando Pipes para el PLP
             if(i==0){
@@ -128,10 +144,6 @@ int main(int argc, char** argv, char** envp){
                 close(tuberias[i][1]);
             }
         }
-        string PLPDirectory = string(dirPLP)+string("/")+plpname;
-        #ifdef DEBUG
-            cerr << "PLP path:" << PLPDirectory.c_str() << endl << flush;
-        #endif
         execl(PLPDirectory.c_str(),plpname.c_str(), NULL);
     }
 
@@ -145,8 +157,10 @@ int main(int argc, char** argv, char** envp){
         pid = fork();
         if (pid == 0) { //Creacion de PCP
             #ifdef DEBUG
-                cerr << "I'm " << i << " process, I'm a PCP PID: " << getppid() << " and my parent is " << getppid() << endl;
-                cerr.flush();
+                print(
+                    string("Fork P")+to_string(i)+string("-PCP, PID:")+to_string(getpid())+
+                    string(", PPID:")+to_string(getppid())+ln
+                );
             #endif
             for (int j = 0; j < n; j++) { //Configurando Pipes para los PCP
                 if (j == i) {
@@ -162,10 +176,6 @@ int main(int argc, char** argv, char** envp){
                     close(tuberias[j][1]);
                 }
             }
-            string PCPDirectory = string(dirPCP)+string("/")+string("pcp");
-            #ifdef DEBUG
-                cerr << "PCP path:" << PCPDirectory.c_str() << endl << flush;
-            #endif
             execl(PCPDirectory.c_str(), "pcp", "-i", to_string(i).c_str(), "-t", to_string(procesos[i]).c_str(), NULL);
         }
     }

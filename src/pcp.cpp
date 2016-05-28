@@ -33,7 +33,7 @@ void* hilo(void* args){
         sem_wait(&mutex);
         print(
             string("New Thread, PID:")+to_string(hilo_param->pid)+
-            string(", ID:")+to_string(hilo_param->id)
+            string(", ID:")+to_string(hilo_param->id)+ln
         );
         sem_post(&mutex);
     #endif
