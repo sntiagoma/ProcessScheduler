@@ -23,8 +23,10 @@ void printUsage(){
 void* hilo(void* args){
     HiloInfo* hilo_param = (HiloInfo*)args;
     #ifdef DEBUG
+        sem_wait(&mutex);
         cerr << "\t\tDesde el Hilo_" << hilo_param->id << " del Proceso_" << hilo_param->pid
             << endl << flush;
+        sem_post(&mutex);
     #endif
 }
 
