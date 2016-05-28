@@ -32,13 +32,18 @@ int main(int argc, char** argv, char** envp){
     int nTareas = generateRand(3,255);
     int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
-        print(string("i> PLP #tareas:")+to_string(nTareas)+ln);
+        print(string("i> PLP sent #tareas:")+to_string(nTareas)+ln);
     #endif
     write(1,&nTareas,sizeof(nTareas)); //Enviando #Tareas
     read(0,&nTareasR,sizeof(int)); //Recibiendo Numero de Tareas
     #ifdef DEBUG
-        print(string("i> PLP #tareas recibidas:")+to_string(nTareasR)+ln);
+        print(string("i> PLP received #tareas:")+to_string(nTareasR)+ln);
     #endif
+
+    if(nTareas!=nTareasR){
+        print("Problem, # of works sent doen't match with received #"+ln);
+        exit(4);
+    }
 
     /***************************************************************************
     *   
@@ -74,10 +79,21 @@ int main(int argc, char** argv, char** envp){
         mensaje->estadisticas[i]->procesoId = 0;
         mensaje->estadisticas[i]->hiloId = 0;
     }
-
+    #ifdef DEBUG
+        print(string("Mensaje:\n\t->nTareas:")+to_string(mensaje->nTareas)
+            +string("\n\t->nEstadisticas:")+to_string(mensaje->nEstadisticas));
+        for(int i=0; i<mensaje->nTareas; i++){
+            print(
+                string("\n\t->[")+to_string(i)+string("] | "+
+                    string(mensaje->tareas[i]->tareaAEjecutar)
+                )
+            );
+        }
+        print(ln);
+    #endif
     /***************************************************************************
     *   
-    *   Enviar Mensajes
+    *   Enviar Mensaje Primera Vez
     *
     ***************************************************************************/
     write(1,mensaje,sizeof(Mensaje));
@@ -89,6 +105,12 @@ int main(int argc, char** argv, char** envp){
     for(int i=0; i<mensaje->nEstadisticas; i++){
         write(1,mensaje->estadisticas[i],sizeof(Estadistica));
     }
+
+    /***************************************************************************
+    *   
+    *   Recibir, Controlar y Reenviar
+    *
+    ***************************************************************************/
     while(read(0,mensaje,sizeof(Mensaje))){
         //Reseterar Tareas y Estadistica
         mensaje->tareas = new Tarea* [mensaje->nTareas];

@@ -98,7 +98,18 @@ int main(int argc, char** argv, char** envp){
     #endif
     write(1,&nTareas,sizeof(nTareas)); //Pasar al Siguiente PCP
 
+    /***************************************************************************
+    *   
+    *   Crea Mensaje y Reservar Espacio en MD
+    *
+    ***************************************************************************/
     Mensaje* mensaje = new Mensaje;
+
+    /***************************************************************************
+    *   
+    *   Recibir, Asignar, Pasar
+    *
+    ***************************************************************************/
     while (read(0,mensaje,sizeof(Mensaje))){
         //Reseterar Tareas y Estadistica
         mensaje->tareas = new Tarea* [mensaje->nTareas];
