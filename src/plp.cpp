@@ -6,6 +6,7 @@
 #include <typeinfo>
 #include <vector>
 #include <signal.h>
+#include <algorithm>
 #include "structs.h"
 using namespace std;
 
@@ -155,6 +156,64 @@ int main(int argc, char** argv, char** envp){
                     );
                 #endif
             }
+            ////////////////TAREAS
+            ///BORRAR
+            tareas.clear();
+            tareasaux.clear();
+            //Agregar todas a el Aux
+            for(int i=0; i<mensaje->nTareas; i++){
+                //tareasaux.push_back(mensaje->tareas[i]);
+                tareas.push_back(mensaje->tareas[i]);
+            }
+            //LAS que sobreviven a tareas
+            /*for(int i=0; i<tareasaux.size(); i++){
+                for(int j=0; j<mensaje->nEstadisticas; j++){
+                    bool b_pid = (tareasaux[i]->procesoId == mensaje->estadisticas[j]->procesoId);
+                    bool b_hid = (tareasaux[i]->hiloId == mensaje->estadisticas[j]->hiloId);
+                    #ifdef DEBUG
+                        print(string("b_pid")+to_string(b_pid)+
+                            string(", b_hid:")+to_string(b_hid)
+                            +ln);
+                    #endif
+                    if(b_pid && b_hid){
+                        //No se Agrega
+                    }else{
+                        Tarea* temp = tareasaux[i];
+                        tareas.push_back(temp);
+                    }
+                }
+            }*/
+
+            /* LAMBDA
+            // FUNCION DE BORRAR COSITAS
+            tareas.erase(
+                remove_if(tareas.begin(), tareas.end(),
+                    [mensaje](const Tarea* o){
+                        for(int i=0; i<mensaje->nEstadisticas; i++){
+                            if(
+                                (mensaje->estadisticas[i]->procesoId ==
+                                    o->procesoId) &&
+                                (mensaje->estadisticas[i]->hiloId ==
+                                    o->hiloId)
+                                ){
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                    ),
+                    tareas.end()
+            );*/
+
+
+            delete[] mensaje->tareas;
+            mensaje->tareas = new Tarea* [tareas.size()];
+            for(int i=0; i<tareas.size(); i++){
+                mensaje->tareas[i] = tareas[i];
+            }
+            mensaje->nTareas = tareas.size();
+
+            /////////////////ESTADISTICAS
             delete[] mensaje->estadisticas;
             mensaje->estadisticas = new Estadistica* [0];
             mensaje->nEstadisticas = 0;
