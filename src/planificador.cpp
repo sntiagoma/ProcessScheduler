@@ -145,41 +145,42 @@ int main(int argc, char** argv, char** envp){
             }
         }
         execl(PLPDirectory.c_str(),plpname.c_str(), NULL);
-    }
-
-    /***************************************************************************
-    *   
-    *   PCPs
-    *
-    ***************************************************************************/
-    pid_t pid;
-    for (int i = 1; i < n; i++) { //Creacion de (n-1) PCPs
-        pid = fork();
-        if (pid == 0) { //Creacion de PCP
-            #ifdef DEBUG
-                print(
-                    string("Fork P")+to_string(i)+string("-PCP, PID:")+to_string(getpid())+
-                    string(", PPID:")+to_string(getppid())+ln
-                );
-            #endif
-            for (int j = 0; j < n; j++) { //Configurando Pipes para los PCP
-                if (j == i) {
-                    close(tuberias[j][0]);
-                    dup2(tuberias[j][1], 1);
-                    close(tuberias[j][1]);
-                } else if (j == (i - 1)) {
-                    close(tuberias[j][1]);
-                    dup2(tuberias[j][0], 0);
-                    close(tuberias[j][0]);
-                } else {
-                    close(tuberias[j][0]);
-                    close(tuberias[j][1]);
+        wait(NULL);
+        print(string("Salio el PLP")+ln);
+    }else{
+        /***********************************************************************
+        *   
+        *   PCPs
+        *
+        ***********************************************************************/
+        pid_t pid;
+        for (int i = 1; i < n; i++) { //Creacion de (n-1) PCPs
+            pid = fork();
+            if (pid == 0) { //Creacion de PCP
+                #ifdef DEBUG
+                    print(
+                        string("Fork P")+to_string(i)+string("-PCP, PID:")+to_string(getpid())+
+                        string(", PPID:")+to_string(getppid())+ln
+                    );
+                #endif
+                for (int j = 0; j < n; j++) { //Configurando Pipes para los PCP
+                    if (j == i) {
+                        close(tuberias[j][0]);
+                        dup2(tuberias[j][1], 1);
+                        close(tuberias[j][1]);
+                    } else if (j == (i - 1)) {
+                        close(tuberias[j][1]);
+                        dup2(tuberias[j][0], 0);
+                        close(tuberias[j][0]);
+                    } else {
+                        close(tuberias[j][0]);
+                        close(tuberias[j][1]);
+                    }
                 }
+                execl(PCPDirectory.c_str(), "pcp", "-i", to_string(i).c_str(), "-t", to_string(procesos[i]).c_str(), NULL);
             }
-            execl(PCPDirectory.c_str(), "pcp", "-i", to_string(i).c_str(), "-t", to_string(procesos[i]).c_str(), NULL);
         }
     }
-
     /***************************************************************************
     *   
     *   Waits

@@ -5,10 +5,12 @@
 #include <unistd.h>
 #include <typeinfo>
 #include <vector>
+#include <signal.h>
 #include "structs.h"
 using namespace std;
 
 string ln = string("\n");
+int terminar = false;
 vector<Tarea*> tareasaux;
 vector<Tarea*> tareas;
 vector<Estadistica*> estadisticas;
@@ -33,7 +35,7 @@ int main(int argc, char** argv, char** envp){
     *
     ***************************************************************************/
     //int nTareas = generateRand(3,255);
-    int nTareas = generateRand(20,30);
+    int nTareas = generateRand(20,100);
     int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
         print(string("i> PLP sent #tareas:")+to_string(nTareas)+ln);
@@ -134,25 +136,49 @@ int main(int argc, char** argv, char** envp){
         for(int i=0; i<mensaje->nEstadisticas; i++){
             read(0,mensaje->estadisticas[i],sizeof(Estadistica));
         }
-
-        
         if(mensaje->nEstadisticas>0){
+            #ifdef DEBUG
+                print(string("iplp> PLP recibio :")
+                    +to_string(mensaje->nEstadisticas)+string(" estadisticas")
+                    +ln);
+            #endif
+            //Pasar estadisticas al Vector
+            for(int i=0; i<mensaje->nEstadisticas; i++){
+                estadisticas.push_back(mensaje->estadisticas[i]);
+                #ifdef DEBUG
+                    print(string("iplp> Agregada Estadistica P")+
+                        to_string(mensaje->estadisticas[i]->procesoId)+
+                        string(":H")
+                        +to_string(mensaje->estadisticas[i]->hiloId)+
+                        string(":")
+                        +string(mensaje->estadisticas[i]->tareaAEjecutar)+ln
+                    );
+                #endif
+            }
+            delete[] mensaje->estadisticas;
+            mensaje->estadisticas = new Estadistica* [0];
+            mensaje->nEstadisticas = 0;
+
+
+            /*tareasaux.clear();
+            tareas.clear();
             //Añadir Tareas a Arreglo Auxiliar
-            for(int i; i<mensaje->nTareas; i++){
+            for(int i=0; i<mensaje->nTareas; i++){
                 tareasaux.push_back(mensaje->tareas[i]);
             }
             //Añadir Estadisticas Nuevas
-            for(int i; i<mensaje->nEstadisticas; i++){
+            for(int i=0; i<mensaje->nEstadisticas; i++){
                 estadisticas.push_back(mensaje->estadisticas[i]);
             }
             //Añadir solo Tareas que no esten en las estadisticas
-            for(int i; i<mensaje->nTareas; i++){
-                for(int j; j<mensaje->nEstadisticas; j++){
+            for(int i=0; i<mensaje->nTareas; i++){
+                for(int j=0; j<mensaje->nEstadisticas; j++){
                     if(
                         (mensaje->tareas[i]->procesoId ==
                             mensaje->estadisticas[j]->procesoId) &&
                         (mensaje->tareas[i]->hiloId ==
-                            mensaje->estadisticas[j]->hiloId)
+                            mensaje->estadisticas[j]->hiloId) &&
+                        (mensaje->tareas[i]->asignado)
                     ){ //No agregar - Completada
                         delete mensaje->tareas[j];
                     }
@@ -161,34 +187,32 @@ int main(int argc, char** argv, char** envp){
                     }
                 }
             }
+            #ifdef DEBUG
+                print(string("iplp> Redimensionado a:")+
+                    to_string(tareas.size())+ln);
+            #endif
             //Redimensionar De Acuerdo a Los Vectores
             delete[] mensaje->tareas;
             delete[] mensaje->estadisticas;
-            tareasaux.clear();
             mensaje->tareas = new Tarea* [tareas.size()];
             mensaje->estadisticas = new Estadistica* [0];
             for(int i=0; i<tareas.size(); i++){
                 mensaje->tareas[i] = tareas[i];
             }
             mensaje->nTareas = tareas.size();
-            mensaje->nEstadisticas = 0;
-            tareas.clear();
+            mensaje->nEstadisticas = 0;*/
         }
+
         #ifdef DEBUG
-            if(mensaje->nEstadisticas>0){
-                print(ln+string("r> PLP: Estadisticas:")
-                    +to_string(mensaje->nEstadisticas)+ln);
-            }else{
-                //print(".");
-            }
+            print(string("eplp> PLP, nTareas:")+to_string(mensaje->nTareas)+
+                string(", nEstadisticas:")+to_string(mensaje->nEstadisticas)
+                +string(", size <estadisticas>:")+to_string(estadisticas.size())
+                +ln);
         #endif
 
-        //Do Something
-        
-        //#ifdef DEBUG
-        //    int rDn = generateRand(0,nTareas-1);
-        //    print(string("PLP T")+to_string(rDn)+string(", PID:")+string(mensaje->tareas[rDn]->tareaAEjecutar)+ln);
-        //#endif
+        if((mensaje->nTareas==0)&&(mensaje->nEstadisticas==0)){
+            terminar = true;
+        }
 
         //Enviar Mensaje
         write(1,mensaje,sizeof(Mensaje));
@@ -209,6 +233,10 @@ int main(int argc, char** argv, char** envp){
             delete mensaje->estadisticas[i];
         }
         delete[] mensaje->estadisticas;
+        if(terminar){
+            print(string("ipcp> PLP")+string(": Cerrado")+ln);
+            break;
+        }
     }
     delete mensaje;
     return 0;

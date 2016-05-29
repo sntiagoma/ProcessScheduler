@@ -20,6 +20,7 @@ sem_t** mutexSem; //Para Modificar las tareas/estadisticas/libres
 Tarea** tareas; //Para pasarle la tarea a hacer al hilo
 bool* libres; //Saber cual hilo no esta ocupado
 vector<Estadistica*> estadisticas;
+bool terminar = false;
 
 string ln = string("\n");
 
@@ -71,8 +72,9 @@ void* hilo(void* args){
         int ret_fork = 0;
         waitpid(p, &ret_fork, 0); 
         #ifdef DEBUG
-            print(string("ih> P")+to_string(hilo_param->pid)+
-                    string("h")+to_string(hilo_param->id)+string(" salio")+ln);
+            // print(string("ih> P")+to_string(hilo_param->pid)+
+            //         string("h")+to_string(hilo_param->id)
+            //         +string(" salio del exec")+ln);
         #endif
         /***********************************************************************
         *   
@@ -80,17 +82,37 @@ void* hilo(void* args){
         *
         ***********************************************************************/
         sem_wait(mutexSem[hilo_param->id]); //Memoria Critica
+            #ifdef DEBUG
+                // print(string("ih> P")+to_string(hilo_param->pid)+
+                //     string("h")+to_string(hilo_param->id)
+                //     +string(" dentro de la zona critica")+ln);
+            #endif
             Estadistica* newStat = new Estadistica; //Nueva Estadistica
             strcpy(newStat->tareaAEjecutar,             
                 tareas[hilo_param->id]->tareaAEjecutar);
             newStat->procesoId = hilo_param->pid;    
             newStat->hiloId = hilo_param->id;
             sem_wait(&mutex); //Dejarla en el Vector de Estadisticas
+                #ifdef DEBUG
+                    // print(string("ih> P")+to_string(hilo_param->pid)+
+                    //     string("h")+to_string(hilo_param->id)
+                    //     +string(" dentro de la zona critica > el mutex")+ln);
+                #endif
                 estadisticas.push_back(newStat);
             sem_post(&mutex);
+            #ifdef DEBUG
+                // print(string("ih> P")+to_string(hilo_param->pid)+
+                //     string("h")+to_string(hilo_param->id)
+                //     +string(" fuera del mutex de la zona critica")+ln);
+            #endif
             libres[hilo_param->id] = true;
             delete tareas[hilo_param->id]; //Eliminar Tarea que se envio
         sem_post(mutexSem[hilo_param->id]); //Libera la Memoria Critica
+        #ifdef DEBUG
+            // print(string("ih> P")+to_string(hilo_param->pid)+
+            //     string("h")+to_string(hilo_param->id)
+            //     +string(" fuera de la zona critica")+ln);
+        #endif
     }
 }
 
@@ -232,8 +254,16 @@ int main(int argc, char** argv, char** envp){
         *
         ***********************************************************************/
         sem_wait(&mutex);
-            if(estadisticas.empty()){
+            #ifdef DEBUG
+                // print(string("ipcp> P")+to_string(pcpNumId)
+                //     +string(" dentro del mutex")+ln);
+            #endif
 
+            if(estadisticas.empty()){
+                #ifdef DEBUG
+                    // print(string("ipcp> P")+to_string(pcpNumId)
+                    //     +string(" No hay Estatadisticas")+ln);
+                #endif
             }else{
                 //Copiando Estadisticas Previas
                 for(int i=0; i<mensaje->nEstadisticas; i++){
@@ -246,8 +276,13 @@ int main(int argc, char** argv, char** envp){
                     mensaje->estadisticas[i] = estadisticas[i];
                 }
                 mensaje->nEstadisticas = estadisticas.size();
+                estadisticas.clear();
+                #ifdef DEBUG
+                    // print(string("ipcp> P")+to_string(pcpNumId)
+                    //     +string(" Estadisticas Redimensionadas a :")+
+                    //     to_string(mensaje->nEstadisticas)+ln);
+                #endif
             }
-            estadisticas.clear();
         sem_post(&mutex);
 
         /***********************************************************************
@@ -264,7 +299,9 @@ int main(int argc, char** argv, char** envp){
         for(int i=0; i<mensaje->nEstadisticas; i++){
             write(1,mensaje->estadisticas[i],sizeof(Estadistica));
         }
-
+        if(mensaje->nTareas==0){
+            terminar = true;
+        }
         // Deletes
         for(int i=0; i<mensaje->nTareas; i++){
             delete mensaje->tareas[i];
@@ -274,6 +311,10 @@ int main(int argc, char** argv, char** envp){
             delete mensaje->estadisticas[i];
         }
         delete[] mensaje->estadisticas;
+        if(terminar){
+            print(string("ipcp> PCP")+to_string(pcpNumId)+string(": Cerrado")+ln);
+            break;
+        }
     }
     delete mensaje;
     return 0;
