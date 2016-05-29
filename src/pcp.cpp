@@ -6,11 +6,23 @@
 #include "structs.h"
 #include <semaphore.h>
 #include <pthread.h>
+#include <vector>
+#include <sys/wait.h>
+#include <cstring>
 
 using namespace std;
 
-sem_t queue, mutex, msg;
+sem_t queue;
+sem_t mutex; //Para agrega al vector de estadisticas
+sem_t msg; //Para la funcion print
+sem_t** semaforos; //Para que el Hilo comienze a Trabajar
+sem_t** mutexSem; //Para Modificar las tareas/estadisticas/libres
+Tarea** tareas; //Para pasarle la tarea a hacer al hilo
+bool* libres; //Saber cual hilo no esta ocupado
+vector<Estadistica*> estadisticas;
+
 string ln = string("\n");
+
 
 void printUsage(){
     string message = string(
@@ -28,15 +40,54 @@ void print(string message){
 }
 
 void* hilo(void* args){
-    HiloInfo* hilo_param = (HiloInfo*)args;
+    HiloInfo* hilo_param = static_cast<HiloInfo*>(args);
     #ifdef DEBUG
-        sem_wait(&mutex);
         print(
             string("New Thread, PID:")+to_string(hilo_param->pid)+
             string(", ID:")+to_string(hilo_param->id)+ln
         );
-        sem_post(&mutex);
     #endif
+    while(true){
+        sem_wait(semaforos[hilo_param->id]); //Sync Inicia
+        int ret = -1000;
+        pid_t p = fork();
+        if(p==0){
+            //semaforo?
+            string workdir = string(getenv("PLN_DIR_TAREAS")+
+                string("/")+string(tareas[hilo_param->id]->tareaAEjecutar)
+            );
+            #ifdef DEBUG
+                print(
+                    string("ih> P")+to_string(hilo_param->pid)+
+                    string("h")+to_string(hilo_param->id)+
+                    string("'ll exec:")+workdir+ln
+                );
+            #endif
+            ret = execl(workdir.c_str(),
+                tareas[hilo_param->id]->tareaAEjecutar, NULL);
+        }else{}
+
+        //lo de mmap para compatir el valor de ret
+        int ret_fork = 0;
+        waitpid(p, &ret_fork, 0); 
+        /***********************************************************************
+        *   
+        *   Liberando Hilo y Dejando Estadistica
+        *
+        ***********************************************************************/
+        sem_wait(mutexSem[hilo_param->id]); //Memoria Critica
+            Estadistica* newStat = new Estadistica; //Nueva Estadistica
+            strcpy(newStat->tareaAEjecutar,             
+                tareas[hilo_param->id]->tareaAEjecutar);
+            newStat->procesoId = hilo_param->pid;    
+            newStat->hiloId = hilo_param->id;
+            sem_wait(&mutex); //Dejarla en el Vector de Estadisticas
+                estadisticas.push_back(newStat);
+            sem_post(&mutex);
+            libres[hilo_param->id] = true;
+            delete tareas[hilo_param->id]; //Eliminar Tarea que se envio
+        sem_post(mutexSem[hilo_param->id]); //Libera la Memoria Critica
+    }
 }
 
 int main(int argc, char** argv, char** envp){
@@ -59,8 +110,21 @@ int main(int argc, char** argv, char** envp){
     sem_init(&queue, 0, 0); //Cola de procesos esperando (De sincronización)
     sem_init(&mutex, 0, 1); //Mutex acceso a 
     sem_init(&msg,   0, 1); //Mutex acceso a print()
+    semaforos = new sem_t* [pcpNumHilos];
+    mutexSem = new sem_t* [pcpNumHilos];
+    for(int i=0; i<pcpNumHilos; i++){
+        semaforos[i] = new sem_t;
+        sem_init(semaforos[i], 0, 0);
+        mutexSem[i] = new sem_t;
+        sem_init(mutexSem[i], 0, 1);
+    }
 
-
+    tareas = new Tarea* [pcpNumHilos];
+    //estadisticas = new Estadistica* [pcpNumHilos];
+    libres = new bool [pcpNumHilos];
+    for(int i=0; i<pcpNumHilos; i++){
+        libres[i] = true;
+    }
     #ifdef DEBUG
         print(string("New PCP, id:")+to_string(pcpNumId)+string(" #thread:")+
             to_string(pcpNumHilos)+string(", PID:")+to_string(getpid())+
@@ -82,7 +146,7 @@ int main(int argc, char** argv, char** envp){
         HiloInfo* hilo_param = new HiloInfo;
         hilo_param->id = i;
         hilo_param->pid = pcpNumId;
-        pthread_create(hilos[i], NULL, &hilo, (void*)hilo_param); //Creando proceso
+        pthread_create(hilos[i], NULL, &hilo, (void*)hilo_param); //Creando proc
     }
 
     /***************************************************************************
@@ -111,6 +175,11 @@ int main(int argc, char** argv, char** envp){
     *
     ***************************************************************************/
     while (read(0,mensaje,sizeof(Mensaje))){
+        /***********************************************************************
+        *   
+        *   Leer Mensaje
+        *
+        ***********************************************************************/
         //Reseterar Tareas y Estadistica
         mensaje->tareas = new Tarea* [mensaje->nTareas];
         mensaje->estadisticas = new Estadistica* [mensaje->nEstadisticas];
@@ -129,11 +198,59 @@ int main(int argc, char** argv, char** envp){
         for(int i=0; i<mensaje->nEstadisticas; i++){
             read(0,mensaje->estadisticas[i],sizeof(Estadistica));
         }
-        /**
-         * Do Something
-         */
-        //++mensaje->tareas[0]->procesoId;
-        //Enviar Mensaje
+
+        /***********************************************************************
+        *   
+        *   Asignar Tareas a Hilos Desocupados
+        *
+        ***********************************************************************/
+        for(int i=0; i<mensaje->nTareas; i++){
+            if(mensaje->tareas[i]->asignado==false){
+                for(int j=0; j<pcpNumHilos; j++){
+                    sem_wait(mutexSem[j]); //Zona Critica en Proceso e Hilo
+                        if(libres[j]){
+                            mensaje->tareas[i]->asignado = true;
+                            tareas[j] = new Tarea;
+                            memcpy(tareas[j],mensaje->tareas[i],sizeof(Tarea));
+                            libres[j] = false;
+                            sem_post(semaforos[j]); //WORK WORK WORK
+                            sem_post(mutexSem[j]);
+                            break;
+                        }
+                    sem_post(mutexSem[j]); //Fin Zona Critica
+                }
+            }
+        }
+
+        /***********************************************************************
+        *   
+        *   Ver quien ha terminado
+        *
+        ***********************************************************************/
+        sem_wait(&mutex);
+            if(estadisticas.empty()){
+
+            }else{
+                //Copiando Estadisticas Previas
+                for(int i=0; i<mensaje->nEstadisticas; i++){
+                    estadisticas.push_back(mensaje->estadisticas[i]);
+                }
+                //Redefiniendo las estadisticas
+                delete[] mensaje->estadisticas;
+                mensaje->estadisticas = new Estadistica* [estadisticas.size()];
+                for(int i=0; i<estadisticas.size(); i++){
+                    mensaje->estadisticas[i] = estadisticas[i];
+                }
+                mensaje->nEstadisticas = estadisticas.size();
+            }
+            estadisticas.clear();
+        sem_post(&mutex);
+
+        /***********************************************************************
+        *   
+        *   Enviar Mensaje
+        *
+        ***********************************************************************/
         write(1,mensaje,sizeof(Mensaje));
         //Enviar Tareas
         for(int i=0; i<mensaje->nTareas; i++){
@@ -155,6 +272,5 @@ int main(int argc, char** argv, char** envp){
         delete[] mensaje->estadisticas;
     }
     delete mensaje;
-    //pthread_exit(NULL);
     return 0;
 }

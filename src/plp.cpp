@@ -4,11 +4,14 @@
 #include <string>
 #include <unistd.h>
 #include <typeinfo>
+#include <vector>
 #include "structs.h"
 using namespace std;
 
 string ln = string("\n");
-
+vector<Tarea*> tareasaux;
+vector<Tarea*> tareas;
+vector<Estadistica*> estadisticas;
 int generateRand(int init, int final){
     return (rand()%(final-init))+init;
 }
@@ -132,12 +135,55 @@ int main(int argc, char** argv, char** envp){
         }
 
         
+        if(mensaje->nEstadisticas>0){
+            //Añadir Tareas a Arreglo Auxiliar
+            for(int i; i<mensaje->nTareas; i++){
+                tareasaux.push_back(mensaje->tareas[i]);
+            }
+            //Añadir Estadisticas Nuevas
+            for(int i; i<mensaje->nEstadisticas; i++){
+                estadisticas.push_back(mensaje->estadisticas[i]);
+            }
+            //Añadir solo Tareas que no esten en las estadisticas
+            for(int i; i<mensaje->nTareas; i++){
+                for(int j; j<mensaje->nEstadisticas; j++){
+                    if(
+                        (mensaje->tareas[i]->procesoId ==
+                            mensaje->estadisticas[j]->procesoId) &&
+                        (mensaje->tareas[i]->hiloId ==
+                            mensaje->estadisticas[j]->hiloId)
+                    ){ //No agregar - Completada
+                        delete mensaje->tareas[j];
+                    }
+                    else{ //Poner para volver a enviar
+                        tareas.push_back(mensaje->tareas[j]);
+                    }
+                }
+            }
+            //Redimensionar De Acuerdo a Los Vectores
+            delete[] mensaje->tareas;
+            delete[] mensaje->estadisticas;
+            tareasaux.clear();
+            mensaje->tareas = new Tarea* [tareas.size()];
+            mensaje->estadisticas = new Estadistica* [0];
+            for(int i=0; i<tareas.size(); i++){
+                mensaje->tareas[i] = tareas[i];
+            }
+            mensaje->nTareas = tareas.size();
+            mensaje->nEstadisticas = 0;
+            tareas.clear();
+        }
+        #ifdef DEBUG
+            print(string("r> PLP: Estadisticas:")
+                +to_string(mensaje->nEstadisticas)+ln);
+        #endif
+
         //Do Something
         
-        #ifdef DEBUG
-            int rDn = generateRand(0,nTareas-1);
-            print(string("PLP T")+to_string(rDn)+string(", PID:")+string(mensaje->tareas[rDn]->tareaAEjecutar)+ln);
-        #endif
+        //#ifdef DEBUG
+        //    int rDn = generateRand(0,nTareas-1);
+        //    print(string("PLP T")+to_string(rDn)+string(", PID:")+string(mensaje->tareas[rDn]->tareaAEjecutar)+ln);
+        //#endif
 
         //Enviar Mensaje
         write(1,mensaje,sizeof(Mensaje));
