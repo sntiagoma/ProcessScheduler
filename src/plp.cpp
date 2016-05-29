@@ -32,7 +32,8 @@ int main(int argc, char** argv, char** envp){
     *   Generar Numero de Tareas
     *
     ***************************************************************************/
-    int nTareas = generateRand(3,255);
+    //int nTareas = generateRand(3,255);
+    int nTareas = generateRand(20,30);
     int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
         print(string("i> PLP sent #tareas:")+to_string(nTareas)+ln);
@@ -174,8 +175,12 @@ int main(int argc, char** argv, char** envp){
             tareas.clear();
         }
         #ifdef DEBUG
-            print(string("r> PLP: Estadisticas:")
-                +to_string(mensaje->nEstadisticas)+ln);
+            if(mensaje->nEstadisticas>0){
+                print(ln+string("r> PLP: Estadisticas:")
+                    +to_string(mensaje->nEstadisticas)+ln);
+            }else{
+                //print(".");
+            }
         #endif
 
         //Do Something

@@ -6,7 +6,7 @@ bin/planificador: src/planificador.o
 	$(CXX) -o $@ $^
 
 bin/pcp: src/pcp.o
-	$(CXX) -lpthread -o $@ $^
+	$(CXX) -pthread -o $@ $^
 
 bin/plp: src/plp.o
 	$(CXX) -o $@ $^

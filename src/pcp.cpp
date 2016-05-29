@@ -70,6 +70,10 @@ void* hilo(void* args){
         //lo de mmap para compatir el valor de ret
         int ret_fork = 0;
         waitpid(p, &ret_fork, 0); 
+        #ifdef DEBUG
+            print(string("ih> P")+to_string(hilo_param->pid)+
+                    string("h")+to_string(hilo_param->id)+string(" salio")+ln);
+        #endif
         /***********************************************************************
         *   
         *   Liberando Hilo y Dejando Estadistica
