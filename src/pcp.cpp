@@ -72,10 +72,12 @@ void* hilo(void* args){
         int ret_fork = 0;
         waitpid(p, &ret_fork, 0); 
         print(
-            string("hsalida> P")+to_string(hilo_param->pid)+
-            string(":H")+to_string(hilo_param->id)
+            string("hsalida> P")+to_string(hilo_param->pid)
+            +string(":H")+to_string(hilo_param->id)
             +string(" ejecuto ")
-            +string(tareas[hilo_param->id]->tareaAEjecutar)+ln
+            +string(tareas[hilo_param->id]->tareaAEjecutar)
+            +string(", retorno: ")+to_string(ret_fork)
+            +ln
         );
 
         #ifdef DEBUG

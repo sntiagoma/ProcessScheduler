@@ -39,12 +39,12 @@ int main(int argc, char** argv, char** envp){
     //int nTareas = generateRand(20,100);
     int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
-        print(string("i> PLP sent #tareas:")+to_string(nTareas)+ln);
+        print(string("iplp> PLP sent #tareas:")+to_string(nTareas)+ln);
     #endif
     write(1,&nTareas,sizeof(nTareas)); //Enviando #Tareas
     read(0,&nTareasR,sizeof(int)); //Recibiendo Numero de Tareas
     #ifdef DEBUG
-        print(string("i> PLP received #tareas:")+to_string(nTareasR)+ln);
+        print(string("iplp> PLP received #tareas:")+to_string(nTareasR)+ln);
     #endif
 
     if(nTareas!=nTareasR){
@@ -86,18 +86,16 @@ int main(int argc, char** argv, char** envp){
         mensaje->estadisticas[i]->procesoId = 0;
         mensaje->estadisticas[i]->hiloId = 0;
     }
-    #ifdef DEBUG
-        print(string("Mensaje:\n\t->nTareas:")+to_string(mensaje->nTareas)
-            +string("\n\t->nEstadisticas:")+to_string(mensaje->nEstadisticas));
-        for(int i=0; i<mensaje->nTareas; i++){
-            print(
-                string("\n\t->[")+to_string(i)+string("] | "+
-                    string(mensaje->tareas[i]->tareaAEjecutar)
-                )
-            );
-        }
-        print(ln);
-    #endif
+    print(string("Mensaje:\n\t->nTareas:")+to_string(mensaje->nTareas)
+        +string("\n\t->nEstadisticas:")+to_string(mensaje->nEstadisticas));
+    for(int i=0; i<mensaje->nTareas; i++){
+        print(
+            string("\n\t->[")+to_string(i)+string("] | "+
+                string(mensaje->tareas[i]->tareaAEjecutar)
+            )
+        );
+    }
+    print(ln);
     /***************************************************************************
     *   
     *   Enviar Mensaje Primera Vez
