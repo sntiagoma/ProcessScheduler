@@ -71,6 +71,13 @@ void* hilo(void* args){
         //lo de mmap para compatir el valor de ret
         int ret_fork = 0;
         waitpid(p, &ret_fork, 0); 
+        print(
+            string("hsalida> P")+to_string(hilo_param->pid)+
+            string(":H")+to_string(hilo_param->id)
+            +string(" ejecuto ")
+            +string(tareas[hilo_param->id]->tareaAEjecutar)+ln
+        );
+
         #ifdef DEBUG
             // print(string("ih> P")+to_string(hilo_param->pid)+
             //         string("h")+to_string(hilo_param->id)
