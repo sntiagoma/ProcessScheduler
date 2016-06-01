@@ -26,7 +26,7 @@ void print(string message){
 int main(int argc, char** argv, char** envp){
     srand(time(NULL)); //Reloj
     #ifdef DEBUG
-        print(string("New PLP, PID:")+to_string(getpid())+
+        print(string("info> PLP creado, PID:")+to_string(getpid())+
             string(", PPID:")+to_string(getppid())+ln
         );
     #endif
@@ -39,12 +39,12 @@ int main(int argc, char** argv, char** envp){
     //int nTareas = generateRand(20,100);
     int nTareasR = 0; //Numero de tareas Recibido
     #ifdef DEBUG
-        print(string("iplp> PLP sent #tareas:")+to_string(nTareas)+ln);
+        print(string("info> PLP envio ")+to_string(nTareas)+string(" tareas")+ln);
     #endif
     write(1,&nTareas,sizeof(nTareas)); //Enviando #Tareas
     read(0,&nTareasR,sizeof(int)); //Recibiendo Numero de Tareas
     #ifdef DEBUG
-        print(string("iplp> PLP received #tareas:")+to_string(nTareasR)+ln);
+        print(string("info> PLP recibio ")+to_string(nTareasR)+string(" tareas")+ln);
     #endif
 
     if(nTareas!=nTareasR){
@@ -137,7 +137,7 @@ int main(int argc, char** argv, char** envp){
         }
         if(mensaje->nEstadisticas>0){
             #ifdef DEBUG
-                print(string("iplp> PLP recibio :")
+                print(string("info> PLP recibio ")
                     +to_string(mensaje->nEstadisticas)+string(" estadisticas")
                     +ln);
             #endif
@@ -145,11 +145,11 @@ int main(int argc, char** argv, char** envp){
             for(int i=0; i<mensaje->nEstadisticas; i++){
                 estadisticas.push_back(mensaje->estadisticas[i]);
                 #ifdef DEBUG
-                    print(string("iplp> Agregada Estadistica P")+
-                        to_string(mensaje->estadisticas[i]->procesoId)+
-                        string(":H")
-                        +to_string(mensaje->estadisticas[i]->hiloId)+
-                        string(":")
+                    print(string("info> PLP estadistica agregada P")
+                        +to_string(mensaje->estadisticas[i]->procesoId)
+                        +string(":H")
+                        +to_string(mensaje->estadisticas[i]->hiloId)
+                        +string(":")
                         +string(mensaje->estadisticas[i]->tareaAEjecutar)+ln
                     );
                 #endif
@@ -218,9 +218,9 @@ int main(int argc, char** argv, char** envp){
         }
 
         #ifdef DEBUG
-            print(string("eplp> PLP, nTareas:")+to_string(mensaje->nTareas)+
-                string(", nEstadisticas:")+to_string(mensaje->nEstadisticas)
-                +string(", size <estadisticas>:")+to_string(estadisticas.size())
+            print(string("info> PLP, tareas enviadas:")+to_string(mensaje->nTareas)
+                +string(", estadisticas enviadas:")+to_string(mensaje->nEstadisticas)
+                +string(", tamaño <estadisticas>:")+to_string(estadisticas.size())
                 +ln);
         #endif
 
@@ -250,15 +250,16 @@ int main(int argc, char** argv, char** envp){
         }
         delete[] mensaje->estadisticas;
         if(terminar){
-            print(string("ipcp> PLP")+string(": Cerrado")+ln);
+            print(string("info> PLP")+string(": Cerrado")+ln);
             for(int i=0; i<estadisticas.size(); i++){
                 print(
-                    string("ppcp> E: P")
-                    +to_string(estadisticas[i]->procesoId)+
-                    string(":H")
-                    +to_string(estadisticas[i]->hiloId)+
-                    string(":")+
-                    string(estadisticas[i]->tareaAEjecutar)+ln
+                    string("estadistica> E")
+                    +to_string(i)+string(": P")
+                    +to_string(estadisticas[i]->procesoId)
+                    +string(":H")
+                    +to_string(estadisticas[i]->hiloId)
+                    +string(":")
+                    +string(estadisticas[i]->tareaAEjecutar)+ln
                 );
             }
             break;

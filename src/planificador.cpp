@@ -49,7 +49,7 @@ int main(int argc, char** argv, char** envp){
             case 'n':
                 tempn = stoi(string(optarg));
                 #ifdef DEBUG
-                    print(string("#procesos:")+to_string(tempn)+ln);
+                    print(string("info> ")+to_string(tempn)+string(" procesos en el anillo")+ln);
                 #endif
                 if(tempn>=2 and tempn<=255){
                     n=tempn;
@@ -67,9 +67,9 @@ int main(int argc, char** argv, char** envp){
                 mapHilos[tempp] = temph;
                 #ifdef DEBUG
                     print(
-                        string("Process:")+to_string(tempp)+
-                        string(" 'll have ")+to_string(temph)
-                        +string(" threads")+ln
+                        string("info> proceso ")+to_string(tempp)+
+                        string(" tendra ")+to_string(temph)
+                        +string(" hilos")+ln
                     );
                 #endif
             break;
@@ -90,9 +90,10 @@ int main(int argc, char** argv, char** envp){
         procesos[i.first] = i.second;
     }
     #ifdef DEBUG
+        print(string("info> Procesos y Numero de Hilos")+ln);
         for(int i=1; i<n; i++){
-            print(string("P")+to_string(i)+string("=")
-                +to_string(procesos[i])+ln);
+            print(string("info> Proceso ")+to_string(i)+string(", ")
+                +to_string(procesos[i])+string(" hilos")+ln);
         }
     #endif  
 
@@ -111,10 +112,10 @@ int main(int argc, char** argv, char** envp){
     string PLPDirectory = string(dirPLP)+string("/")+plpname;
     string PCPDirectory = string(dirPCP)+string("/")+string("pcp");
     #ifdef DEBUG
-        print(string("PLP path:")+PLPDirectory+ln);
-        print(string("PCP path:")+PCPDirectory+ln);
+        print(string("info> PLP path:")+PLPDirectory+ln);
+        print(string("info> PCP path:")+PCPDirectory+ln);
         print(
-            string("Planificador, PID:")+to_string(getpid())
+            string("info> Planificador, PID:")+to_string(getpid())
             +string(", PPID:")+to_string(getppid())+ln
         );
     #endif
@@ -126,7 +127,7 @@ int main(int argc, char** argv, char** envp){
     if(fork()==0){ //Creacion del PLP
         #ifdef DEBUG
             print(
-                string("Fork P0-PLP, PID:")+to_string(getpid())+
+                string("info> P0-PLP, PID:")+to_string(getpid())+
                 string(", PPID:")+to_string(getppid())+ln
             );
         #endif
@@ -159,7 +160,7 @@ int main(int argc, char** argv, char** envp){
             if (pid == 0) { //Creacion de PCP
                 #ifdef DEBUG
                     print(
-                        string("Fork P")+to_string(i)+string("-PCP, PID:")+to_string(getpid())+
+                        string("info> P")+to_string(i)+string("-PCP, PID:")+to_string(getpid())+
                         string(", PPID:")+to_string(getppid())+ln
                     );
                 #endif

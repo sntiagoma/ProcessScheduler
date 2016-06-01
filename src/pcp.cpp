@@ -44,8 +44,8 @@ void* hilo(void* args){
     HiloInfo* hilo_param = static_cast<HiloInfo*>(args);
     #ifdef DEBUG
         print(
-            string("New Thread, PID:")+to_string(hilo_param->pid)+
-            string(", ID:")+to_string(hilo_param->id)+ln
+            string("info> Hilo creado, P")+to_string(hilo_param->pid)+
+            string("h")+to_string(hilo_param->id)+ln
         );
     #endif
     while(true){
@@ -59,9 +59,9 @@ void* hilo(void* args){
             );
             #ifdef DEBUG
                 print(
-                    string("ih> P")+to_string(hilo_param->pid)+
+                    string("info> P")+to_string(hilo_param->pid)+
                     string("h")+to_string(hilo_param->id)+
-                    string("'ll exec:")+workdir+ln
+                    string(" ejecutara ")+workdir+ln
                 );
             #endif
             ret = execl(workdir.c_str(),
@@ -72,11 +72,11 @@ void* hilo(void* args){
         int ret_fork = 0;
         waitpid(p, &ret_fork, 0); 
         print(
-            string("hsalida> P")+to_string(hilo_param->pid)
+            string("info> P")+to_string(hilo_param->pid)
             +string(":H")+to_string(hilo_param->id)
-            +string(" ejecuto ")
+            +string(" ejecuto la ")
             +string(tareas[hilo_param->id]->tareaAEjecutar)
-            +string(", retorno: ")+to_string(ret_fork)
+            //+string(", retorno: ")+to_string(ret_fork)
             +ln
         );
 
@@ -161,7 +161,7 @@ int main(int argc, char** argv, char** envp){
         libres[i] = true;
     }
     #ifdef DEBUG
-        print(string("New PCP, id:")+to_string(pcpNumId)+string(" #thread:")+
+        print(string("info> PCP creado, id:")+to_string(pcpNumId)+string(", hilos:")+
             to_string(pcpNumHilos)+string(", PID:")+to_string(getpid())+
             string(", PPID:")+to_string(getppid())+ln
         );
@@ -192,8 +192,8 @@ int main(int argc, char** argv, char** envp){
     int nTareas = 0;
     read(0,&nTareas,sizeof(nTareas)); //Recibir
     #ifdef DEBUG
-        print(string("P")+to_string(pcpNumId)+string(" get nTareas=")+
-            to_string(nTareas)+ln);
+        //print(string("P")+to_string(pcpNumId)+string(" get nTareas=")+
+        //    to_string(nTareas)+ln);
     #endif
     write(1,&nTareas,sizeof(nTareas)); //Pasar al Siguiente PCP
 
@@ -321,7 +321,7 @@ int main(int argc, char** argv, char** envp){
         }
         delete[] mensaje->estadisticas;
         if(terminar){
-            print(string("ipcp> PCP")+to_string(pcpNumId)+string(": Cerrado")+ln);
+            print(string("info> PCP")+to_string(pcpNumId)+string(": Cerrado")+ln);
             break;
         }
     }
